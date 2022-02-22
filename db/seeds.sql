@@ -1,0 +1,2 @@
+INSERT INTO department (name)
+VALUE("Woody Vicente"),("Dixon Menendez"),("Natalia Aleksandrov"),("Yafa MacDougall"),("Tyler Durden"),("Min Alesi"),("Clark Slater"),("Jana Scott"),("Gabe Byer"),("Tanith Madden")
