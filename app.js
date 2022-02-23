@@ -52,6 +52,31 @@ const role = [
     },
 ]
 
+const employee = [
+    {
+        name: "firstName",
+        type: "input",
+        message: "What is the employee's first name?"
+    },
+    {
+        name: "lastName",
+        type: "input",
+        message: "What is the employee's last name?"
+    },
+    {
+        name: "role",
+        type: "list",
+        message: "What is the employees role?",
+        choices: ["Sales Lead", "Salesperson", "Lead Engineer", "Software Engineer", "Account Manager", "Accountant", "Lead Counsel", "Associate Counsel"]
+    },
+    {
+        name: "manager",
+        type: "list",
+        message: "Who is the employee's manager?",
+        choices: [1, 4, 8, 10]
+    }
+]
+
 function appInit() {
     inquirer.prompt(mainMenu)
     .then((data) => {
@@ -81,16 +106,13 @@ function appInit() {
                     if (err) console.log(err);
                     console.log("Query complete...");
                     console.log(`${data.department} successfully added to departments...`);
+                    appInit();
                 })
                 
             })
         } else if (data.menu === "Add a role") {
             inquirer.prompt(role)
             .then((data) => {
-                // console.log(data)
-                // console.log(data.title)
-                // console.log(data.salary)
-                // console.log(data.department)
                 departmentNum = 0
                 if (data.department === "Engineering") {
                     departmentNum = 1;
@@ -104,16 +126,24 @@ function appInit() {
                     departmentNum = 5;
                 }
                 num = data.salary;
-                console.log(num)
                 stringDecimal = num.toFixed(2);
                 salary = Number(stringDecimal)
-                console.log(departmentNum)
-                
-                
                 db.query(`INSERT INTO roles (title, salary, department_id) VALUE ('${data.title}', '${data.salary}', ${departmentNum})`, (err, results) => {
                     if (err) console.log(err);
                     console.log(results);
                     console.log(`${data.title} successfully added to roles...`)
+                    appInit();
+                })
+            })
+        } else if (data.menu === "Add an employee"){
+            inquirer.prompt(employee)
+            .then((data) => {
+                console.log(data)
+                db.query(`INSERT INTO employee_info (first_name, last_name, role_id, manager_id) VALUE ('${data.firstName}', '${data.lastName}', 1, ${data.manager})`, (err, results) => {
+                    if (err) console.log(err);
+                    console.log(results);
+                    console.log(`${data.firstName} ${data.lastName} successfully added to employees`)
+                    appInit();
                 })
             })
         } else {
