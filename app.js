@@ -173,27 +173,18 @@ function appInit() {
         } else if (data.menu === "Add a role") {
             inquirer.prompt(role)
             .then((data) => {
-                departmentNum = 0
-                if (data.department === "Engineering") {
-                    departmentNum = 1;
-                } else if (data.department === "Finance"){
-                    departmentNum = 2;
-                } else if (data.department === "Legal") {
-                    departmentNum = 3;
-                } else if (data.department === "Sales") {
-                    departmentNum = 4;
-                } else {
-                    departmentNum = 5;
-                }
-                num = data.salary;
-                stringDecimal = num.toFixed(2);
-                salary = Number(stringDecimal)
-                db.query(`INSERT INTO roles (title, salary) VALUE ('${data.title}', '${data.salary}')`, (err, results) => {
+                const title = data.title;
+                const salary = data.salary;
+                db.query(`SELECT id FROM department WHERE department="${data.department}"`, (err, results) => {
                     if (err) console.log(err);
-                    console.log(results);
-                    console.log(`${data.title} successfully added to roles...`)
-                    appInit();
+                    const departmentID = results[0].id
+                    db.query(`INSERT INTO roles (title, salary, department_id) VALUE ('${title}', '${salary}', ${departmentID})`, (err, results) => {
+                        if (err) console.log(err);
+                        console.log(`${title} successfully added to roles...`)
+                        appInit();
+                    })
                 })
+                
             })
         } else if (data.menu === "Add an employee"){
             inquirer.prompt(employee)
