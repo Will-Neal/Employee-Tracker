@@ -17,99 +17,108 @@ const db = mysql.createConnection(
     console.log(`Connected to the employees_db database....`)
 );
 
-//Obtain info from databases to use in question arrays
 
-
-// function getDepartments() {
-//     db.query('SELECT name FROM employees_db.department;', (err, results) => {
-//         if (err) console.log(err);
-//         for (const department of results) {
-//             console.log(department.name)
-//         }
-//     })
-   
-// }
-
-// getDepartments()
-
-//Question Arrays
-const mainMenu = [
-    {
-        name: "menu",
-        type: "list",
-        message: "What would you like to do?",
-        choices: ["View all Departments", "View all Roles", "View all Employees", "Add a department", "Add a role", "Add an employee", "Update an employee role", "Exit"]
-    }
-]
-
-const department = [
-    {
-        name: "department",
-        type: "input",
-        message: "What is the name of the department?"
-    }
-]
-
-const role = [
-    {
-        name: "title",
-        type: "input",
-        message: "What is the name of the role?"
-    },
-    {
-        name: "salary",
-        type: "number",
-        message: "What is the salary of the role?"
-    },
-    {
-        name: "department",
-        type: "list",
-        message: "Which Department does the role belong to?",
-        choices: ["Sales", "Engineering", "Finance", "Legal"]
-    },
-]
-
-const employee = [
-    {
-        name: "firstName",
-        type: "input",
-        message: "What is the employee's first name?"
-    },
-    {
-        name: "lastName",
-        type: "input",
-        message: "What is the employee's last name?"
-    },
-    {
-        name: "role",
-        type: "list",
-        message: "What is the employees role?",
-        choices: ["Sales Lead", "Salesperson", "Lead Engineer", "Software Engineer", "Account Manager", "Accountant", "Lead Counsel", "Associate Counsel"]
-    },
-    {
-        name: "manager",
-        type: "list",
-        message: "Who is the employee's manager?",
-        choices: [1, 4, 8, 10]
-    }
-]
-
-const updateRole = [
-    {
-        name: "employee",
-        type: "list",
-        message: "Which employee would you like to update the role for?",
-        choices: [1, 2, 3, 4, 5, 6, 7, 8 , 9, 10 , 11, 12]
-    },
-    {
-        name: "roleUpdate",
-        type: "list",
-        message: "What is the employee's new role?",
-        choices: [1, 2, 3, 4, 5, 6, 7, 8]
-    }
-]
-
+//Function that initializes the application
 function appInit() {
+    let deptNames = [];
+    db.query('SELECT department FROM employees_db.department;', (err, results) => {
+        if (err) console.log(err);
+        for (const department of results) {
+            deptNames.push(department.department)
+            }
+    });
+
+    let rolesArray = [];
+    db.query('SELECT title FROM employees_db.roles;', (err, results) => {
+        if (err) console.log(err);
+        for (const role of results) {
+            rolesArray.push(role.title)
+        }
+    })
+//Question Arrays for Inquirer
+
+    const mainMenu = [
+        {
+            name: "menu",
+            type: "list",
+            message: "What would you like to do?",
+            choices: ["View all Departments", "View all Roles", "View all Employees", "Add a department", "Add a role", "Add an employee", "Update an employee role", "Exit"]
+        }
+    ]
+    
+    const department = [
+        {
+            name: "department",
+            type: "input",
+            message: "What is the name of the department?"
+        }
+    ]
+    
+    const role = [
+        {
+            name: "title",
+            type: "input",
+            message: "What is the name of the role?"
+        },
+        {
+            name: "salary",
+            type: "number",
+            message: "What is the salary of the role?"
+        },
+        {
+            name: "department",
+            type: "list",
+            message: "Which Department does the role belong to?",
+            choices:  deptNames
+    
+        },
+    ]
+    
+    const employee = [
+        {
+            name: "firstName",
+            type: "input",
+            message: "What is the employee's first name?"
+        },
+        {
+            name: "lastName",
+            type: "input",
+            message: "What is the employee's last name?"
+        },
+        {
+            name: "role",
+            type: "list",
+            message: "What is the employees role?",
+            choices: rolesArray
+            // ["Sales Lead", "Salesperson", "Lead Engineer", "Software Engineer", "Account Manager", "Accountant", "Lead Counsel", "Associate Counsel"]
+        },
+        {
+            name: "manager",
+            type: "list",
+            message: "Who is the employee's manager?",
+            choices: [1, 4, 8, 10]
+        }
+    ]
+    
+    const updateRole = [
+        {
+            name: "employee",
+            type: "list",
+            message: "Which employee would you like to update the role for?",
+            choices: [1, 2, 3, 4, 5, 6, 7, 8 , 9, 10 , 11, 12]
+        },
+        {
+            name: "roleUpdate",
+            type: "list",
+            message: "What is the employee's new role?",
+            choices: [1, 2, 3, 4, 5, 6, 7, 8]
+        }
+    ]
+    
+
+
+    
+
     inquirer.prompt(mainMenu)
     .then((data) => {
         console.log(data.menu)
@@ -134,7 +143,7 @@ function appInit() {
         } else if (data.menu === "Add a department") {
             inquirer.prompt(department)
             .then((data) => {
-                db.query(`INSERT INTO department (name) VALUE ('${data.department}')`, (err, results) => {
+                db.query(`INSERT INTO department (department) VALUE ('${data.department}')`, (err, results) => {
                     if (err) console.log(err);
                     console.log("Query complete...");
                     console.log(`${data.department} successfully added to departments...`);
@@ -191,5 +200,7 @@ function appInit() {
     }) 
 
 }
+
+
 
 appInit()
