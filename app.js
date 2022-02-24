@@ -46,6 +46,7 @@ function appInit() {
         }
         console.log(managerArray)
     })
+    
 //Question Arrays for Inquirer
 
     const mainMenu = [
@@ -122,7 +123,7 @@ function appInit() {
             name: "roleUpdate",
             type: "list",
             message: "What is the employee's new role?",
-            choices: [1, 2, 3, 4, 5, 6, 7, 8]
+            choices: rolesArray
         }
     ]
     
@@ -190,10 +191,14 @@ function appInit() {
         } else if (data.menu === "Add an employee"){
             inquirer.prompt(employee)
             .then((data) => {
-                console.log(data)
-                db.query(`INSERT INTO employee_info (first_name, last_name, role_id, manager_id) VALUE ('${data.firstName}', '${data.lastName}', 1, ${data.manager})`, (err, results) => {
+                let managerID = 1
+                db.query(`SELECT id FROM employee_info WHERE CONCAT(first_name, " ", last_name)="${data.manager}"`, (err, results) => {
                     if (err) console.log(err);
-                    console.log(results);
+                    managerID = results[0].id
+                })
+                console.log(managerID)
+                db.query(`INSERT INTO employee_info (first_name, last_name, role_id, manager_id) VALUE ('${data.firstName}', '${data.lastName}', 1, ${managerID})`, (err, results) => {
+                    if (err) console.log(err);
                     console.log(`${data.firstName} ${data.lastName} successfully added to employees`)
                     appInit();
                 })
