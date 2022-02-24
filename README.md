@@ -19,6 +19,8 @@
 
   To use the application simply call app.js using Node from the command line and then follow the prompts. Use your arrow keys to navigate the menu and enter the information that you would like to add or change. When you are finished navigate to exit and press enter.
 
+  For an instructional walkthrough video [click here.](https://drive.google.com/file/d/1zFd8ARtrPIiteAwaCfZNhvn7d9Uamvme/view?usp=sharing)
+  
   ## License
 
   ![License Badge](https://img.shields.io/badge/license-MIT-orange?style=plastic=appveyor?raw=true)
