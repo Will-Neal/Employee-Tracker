@@ -48,7 +48,6 @@ function appInit() {
             if (!managerArray.includes(manager.manager) && manager.manager !== null)
             managerArray.push(manager.manager)
         }
-        console.log(managerArray)
     })
 
     //Dynamically generates employees for use in inquirer
