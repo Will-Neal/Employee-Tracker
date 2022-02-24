@@ -46,7 +46,14 @@ function appInit() {
         }
         console.log(managerArray)
     })
-    
+
+    let employeeArray = []
+    db.query('SELECT CONCAT (first_name, " ", last_name) AS employee FROM employee_info', (err, results) => {
+        if (err) console.log(err);
+        for (const employee of results) {
+            employeeArray.push(employee.employee)
+        }
+    })
 //Question Arrays for Inquirer
 
     const mainMenu = [
@@ -117,7 +124,7 @@ function appInit() {
             name: "employee",
             type: "list",
             message: "Which employee would you like to update the role for?",
-            choices: [1, 2, 3, 4, 5, 6, 7, 8 , 9, 10 , 11, 12]
+            choices: employeeArray
         },
         {
             name: "roleUpdate",
@@ -207,8 +214,14 @@ function appInit() {
             console.log("You have selected update an employee role")
             inquirer.prompt(updateRole)
             .then((data) => {
-                console.log(data)
-                db.query(`UPDATE `) 
+                fullName = data.employee;
+                db.query(`SELECT id FROM roles WHERE title="${data.roleUpdate}"`, (err, results) => {
+                    if (err) console.log(err);
+                    console.log(results[0].id);
+                    idNum = results[0].id;
+                    db.query(`UPDATE employee_info SET role_id = ${idNum} WHERE CONCAT (first_name, " ", last_name)="${fullName}"`)
+                    console.log(`Employee ${fullName} updated successfully...`)
+                })
             })
         } else {
             process.exit()
@@ -216,6 +229,7 @@ function appInit() {
     }) 
 
 }
+
 
 
 
