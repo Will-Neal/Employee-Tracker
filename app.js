@@ -20,6 +20,8 @@ const db = mysql.createConnection(
 
 //Function that initializes the application
 function appInit() {
+
+    //Dynamically generates department names for inquirer
     let deptNames = [];
     db.query('SELECT department FROM employees_db.department;', (err, results) => {
         if (err) console.log(err);
@@ -28,6 +30,7 @@ function appInit() {
             }
     });
 
+    //Dynamically generates roles for inquirer
     let rolesArray = [];
     db.query('SELECT title FROM employees_db.roles;', (err, results) => {
         if (err) console.log(err);
@@ -36,6 +39,7 @@ function appInit() {
         }
     })
 
+    //Generates the mangers for use in inquirer
     let managerArray = [];
     db.query('SELECT CONCAT (manager.first_name, " ", manager.last_name) AS manager FROM employee_info LEFT JOIN employee_info manager ON employee_info.manager_id = manager.id', (err, results) => {
         if (err) console.log(err);
@@ -47,6 +51,7 @@ function appInit() {
         console.log(managerArray)
     })
 
+    //Dynamically generates employees for use in inquirer
     let employeeArray = []
     db.query('SELECT CONCAT (first_name, " ", last_name) AS employee FROM employee_info', (err, results) => {
         if (err) console.log(err);
@@ -54,7 +59,8 @@ function appInit() {
             employeeArray.push(employee.employee)
         }
     })
-//Question Arrays for Inquirer
+
+//Question Arrays for Inquirer, some questions reference arrays above
 
     const mainMenu = [
         {
@@ -137,28 +143,37 @@ function appInit() {
 
 
     
-
+    //Beginning of application - prompts with menu
     inquirer.prompt(mainMenu)
     .then((data) => {
         console.log(data.menu)
+        
+
+        //VIEW ALL DEPARTMENTS returns all departments including created departments
         if (data.menu === "View all Departments") {
             db.query("SELECT * FROM employees_db.department;", (err, results) => {
                 if (err) console.log(err);
                 console.table(results);
                 appInit()
             })
+
+        //VIEW ALL ROLES CODE returns all roles included created roles    
         } else if (data.menu === "View all Roles") {
             db.query("SELECT roles.id, roles.title, department.department, roles.salary FROM roles LEFT JOIN department ON roles.department_id=department.id ORDER BY id;", (err, results) => {
                 if (err) console.log(err);
                 console.table(results);
                 appInit()
             }) 
+
+        //VIEW ALL EMPLOYEES returns all employees including created employees    
         } else if (data.menu === "View all Employees") {
             db.query('SELECT employee_info.id, employee_info.first_name, employee_info.last_name, roles.title,department.department, roles.salary, CONCAT (manager.first_name, " ", manager.last_name) AS manager FROM employee_info LEFT JOIN roles ON employee_info.role_id = roles.id LEFT JOIN department ON roles.department_id = department.id LEFT JOIN employee_info manager ON employee_info.manager_id = manager.id', (err, results) => {
                 if (err) console.log(err);
                 console.table(results);
                 appInit()
             }) 
+
+        //ADD A DEPARTMENT inserts new department into db    
         } else if (data.menu === "Add a department") {
             inquirer.prompt(department)
             .then((data) => {
@@ -170,6 +185,8 @@ function appInit() {
                 })
                 
             })
+
+        //ADD A ROLE inserts a new role into db by using the department to get an id and then inserting that to table    
         } else if (data.menu === "Add a role") {
             inquirer.prompt(role)
             .then((data) => {
@@ -186,6 +203,8 @@ function appInit() {
                 })
                 
             })
+
+        //ADD AN EMPLOYEE inserts a new employee by first getting an id from same table using the managers name    
         } else if (data.menu === "Add an employee"){
             inquirer.prompt(employee)
             .then((data) => {
@@ -203,6 +222,8 @@ function appInit() {
 
                 
             })
+
+        //UPDATE AN EMPLOYEE inserts new employee role by getting role id from roles table and then updating info in employee_info table    
         } else if (data.menu === "Update an employee role") {
             console.log("You have selected update an employee role")
             inquirer.prompt(updateRole)
@@ -217,6 +238,8 @@ function appInit() {
                     appInit()
                 })
             })
+
+        //EXIST closes app if user chooses exit    
         } else {
             process.exit()
         }
@@ -226,5 +249,5 @@ function appInit() {
 
 
 
-
+//Call function to initialize app
 appInit()
