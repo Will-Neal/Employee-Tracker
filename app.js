@@ -148,7 +148,7 @@ function appInit() {
                 appInit()
             })
         } else if (data.menu === "View all Roles") {
-            db.query("SELECT roles.id, roles.title, department.department, roles.salary FROM roles JOIN department ON roles.department_id=department.id ORDER BY id;", (err, results) => {
+            db.query("SELECT roles.id, roles.title, department.department, roles.salary FROM roles LEFT JOIN department ON roles.department_id=department.id ORDER BY id;", (err, results) => {
                 if (err) console.log(err);
                 console.table(results);
                 appInit()
@@ -198,29 +198,32 @@ function appInit() {
         } else if (data.menu === "Add an employee"){
             inquirer.prompt(employee)
             .then((data) => {
-                let managerID = 1
+                const firstName = data.firstName;
+                const lastName = data.lastName;
                 db.query(`SELECT id FROM employee_info WHERE CONCAT(first_name, " ", last_name)="${data.manager}"`, (err, results) => {
                     if (err) console.log(err);
-                    managerID = results[0].id
+                    const managerID = results[0].id
+                    db.query(`INSERT INTO employee_info (first_name, last_name, role_id, manager_id) VALUE ('${firstName}', '${lastName}', 1, ${managerID})`, (err, results) => {
+                        if (err) console.log(err);
+                        console.log(`${data.firstName} ${data.lastName} successfully added to employees`)
+                        appInit();
+                    })
                 })
-                console.log(managerID)
-                db.query(`INSERT INTO employee_info (first_name, last_name, role_id, manager_id) VALUE ('${data.firstName}', '${data.lastName}', 1, ${managerID})`, (err, results) => {
-                    if (err) console.log(err);
-                    console.log(`${data.firstName} ${data.lastName} successfully added to employees`)
-                    appInit();
-                })
+
+                
             })
         } else if (data.menu === "Update an employee role") {
             console.log("You have selected update an employee role")
             inquirer.prompt(updateRole)
             .then((data) => {
-                fullName = data.employee;
+                const fullName = data.employee;
                 db.query(`SELECT id FROM roles WHERE title="${data.roleUpdate}"`, (err, results) => {
                     if (err) console.log(err);
                     console.log(results[0].id);
                     idNum = results[0].id;
                     db.query(`UPDATE employee_info SET role_id = ${idNum} WHERE CONCAT (first_name, " ", last_name)="${fullName}"`)
                     console.log(`Employee ${fullName} updated successfully...`)
+                    appInit()
                 })
             })
         } else {
