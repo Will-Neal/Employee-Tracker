@@ -35,6 +35,17 @@ function appInit() {
             rolesArray.push(role.title)
         }
     })
+
+    let managerArray = [];
+    db.query('SELECT CONCAT (manager.first_name, " ", manager.last_name) AS manager FROM employee_info LEFT JOIN employee_info manager ON employee_info.manager_id = manager.id', (err, results) => {
+        if (err) console.log(err);
+        // console.log(results);
+        for (const manager of results) {
+            if (!managerArray.includes(manager.manager) && manager.manager !== null)
+            managerArray.push(manager.manager)
+        }
+        console.log(managerArray)
+    })
 //Question Arrays for Inquirer
 
     const mainMenu = [
@@ -96,7 +107,7 @@ function appInit() {
             name: "manager",
             type: "list",
             message: "Who is the employee's manager?",
-            choices: [1, 4, 8, 10]
+            choices: managerArray
         }
     ]
     
@@ -129,13 +140,13 @@ function appInit() {
                 appInit()
             })
         } else if (data.menu === "View all Roles") {
-            db.query("SELECT roles.id, roles.title, department.department, roles.salary FROM roles JOIN department ON roles.department_id=department.id;", (err, results) => {
+            db.query("SELECT roles.id, roles.title, department.department, roles.salary FROM roles JOIN department ON roles.department_id=department.id ORDER BY id;", (err, results) => {
                 if (err) console.log(err);
                 console.table(results);
                 appInit()
             }) 
         } else if (data.menu === "View all Employees") {
-            db.query("SELECT * FROM employees_db.employee_info;", (err, results) => {
+            db.query('SELECT employee_info.id, employee_info.first_name, employee_info.last_name, roles.title,department.department, roles.salary, CONCAT (manager.first_name, " ", manager.last_name) AS manager FROM employee_info LEFT JOIN roles ON employee_info.role_id = roles.id LEFT JOIN department ON roles.department_id = department.id LEFT JOIN employee_info manager ON employee_info.manager_id = manager.id', (err, results) => {
                 if (err) console.log(err);
                 console.table(results);
                 appInit()
@@ -169,7 +180,7 @@ function appInit() {
                 num = data.salary;
                 stringDecimal = num.toFixed(2);
                 salary = Number(stringDecimal)
-                db.query(`INSERT INTO roles (title, salary, department_id) VALUE ('${data.title}', '${data.salary}', ${departmentNum})`, (err, results) => {
+                db.query(`INSERT INTO roles (title, salary) VALUE ('${data.title}', '${data.salary}')`, (err, results) => {
                     if (err) console.log(err);
                     console.log(results);
                     console.log(`${data.title} successfully added to roles...`)
